@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>FitMind AI – Smart Fitness with Music & Streak</title>
+    <!-- Google Fonts + Font Awesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* ---------- exact original styles from given code (unchanged) ---------- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(145deg, #e0f2fe 0%, #ffe0f0 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        .app-container {
+            max-width: 1300px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            border-radius: 2.5rem;
+            box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.25), 0 2px 8px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .glass-nav {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            background: rgba(255, 248, 250, 0.85);
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid rgba(255, 182, 193, 0.5);
+            backdrop-filter: blur(4px);
+            flex-wrap: wrap;
+            position: relative;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            padding: 0.85rem 1.8rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 3rem;
+            cursor: pointer;
+            transition: all 0.25s;
+            color: #4b5563;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            backdrop-filter: blur(2px);
+        }
+
+        .tab-btn i {
+            font-size: 1.2rem;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(115deg, #fbcfe8, #f9a8d4);
+            color: #2c2c2c;
+            box-shadow: 0 6px 14px rgba(249, 168, 212, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        .tab-btn:hover:not(.active) {
+            background: rgba(255, 228, 241, 0.7);
+            transform: translateY(-2px);
+            color: #1e293b;
+        }
+
+        .logout-btn {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,220,235,0.8);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            color: #9b2c5c;
+            transition: 0.2s;
+        }
+        .logout-btn:hover {
+            background: #fbcfe8;
+        }
+
+        .content-pane {
+            padding: 2rem 2rem 2rem 2rem;
+            min-height: 550px;
+            transition: 0.2s;
+        }
+
+        /* chat area */
+        .chat-wrapper {
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 2rem;
+            backdrop-filter: blur(4px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 65vh;
+            max-height: 550px;
+        }
+
+        .messages-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            scroll-behavior: smooth;
+        }
+
+        .message {
+            display: flex;
+            max-width: 80%;
+            animation: fadeSlideUp 0.25s ease;
+        }
+
+        .message.user {
+            align-self: flex-end;
+            justify-content: flex-end;
+        }
+
+        .message.bot {
+            align-self: flex-start;
+        }
+
+        .bubble {
+            padding: 0.9rem 1.3rem;
+            border-radius: 2rem;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .user .bubble {
+            background: #fbcfe8;
+            color: #2d2a2e;
+            border-bottom-right-radius: 0.4rem;
+            border: 1px solid #ffdfe8;
+        }
+
+        .bot .bubble {
+            background: #e0f2fe;
+            color: #0c4a6e;
+            border-bottom-left-radius: 0.4rem;
+            border: 1px solid #cff2ff;
+        }
+
+        .chat-input-area {
+            display: flex;
+            gap: 0.75rem;
+            padding: 1rem 1.5rem 1.5rem;
+            background: rgba(255, 245, 248, 0.7);
+            border-top: 1px solid rgba(255, 182, 193, 0.4);
+        }
+
+        .chat-input-area input {
+            flex: 1;
+            border: none;
+            background: white;
+            padding: 0.9rem 1.2rem;
+            border-radius: 3rem;
+            font-size: 0.95rem;
+            outline: none;
+            transition: 0.2s;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+            border: 1px solid #ffe2ed;
+        }
+
+        .chat-input-area input:focus {
+            border-color: #f9a8d4;
+            box-shadow: 0 0 0 3px rgba(249,168,212,0.2);
+        }
+
+        .chat-input-area button {
+            background: #fbcfe8;
+            border: none;
+            width: 48px;
+            border-radius: 3rem;
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: 0.2s;
+            color: #9b2c5c;
+        }
+
+        .chat-input-area button:hover {
+            background: #f9a8d4;
+            transform: scale(0.96);
+        }
+
+        .suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.7rem;
+            padding: 0.8rem 1.5rem 1rem;
+            background: rgba(255, 250, 245, 0.6);
+        }
+
+        .suggestion-chip {
+            background: white;
+            border-radius: 40px;
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #b91c5c;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+            border: 1px solid #ffe0ed;
+        }
+
+        .suggestion-chip:hover {
+            background: #ffe4f0;
+            transform: translateY(-2px);
+            border-color: #f9a8d4;
+        }
+
+        /* workout cards grid */
+        .workout-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .workout-card {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(8px);
+            border-radius: 1.8rem;
+            padding: 1.5rem;
+            transition: all 0.25s;
+            border: 1px solid rgba(255, 192, 203, 0.5);
+            box-shadow: 0 10px 20px -8px rgba(0,0,0,0.1);
+            cursor: pointer;
+        }
+
+        .workout-card:hover {
+            transform: translateY(-6px);
+            background: white;
+            border-color: #fbcfe8;
+        }
+
+        .workout-icon {
+            font-size: 2.2rem;
+            margin-bottom: 1rem;
+            color: #ec489a;
+        }
+
+        .workout-card h3 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .random-btn {
+            background: linear-gradient(120deg, #bfdbfe, #fbcfe8);
+            border: none;
+            padding: 0.9rem 1.8rem;
+            border-radius: 3rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* wellness breathing */
+        .wellness-card {
+            background: rgba(255, 255, 255, 0.75);
+            border-radius: 2rem;
+            padding: 1.8rem;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(8px);
+        }
+
+        .breathing-circle {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #fbcfe8, #bae6fd);
+            margin: 1rem auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.6rem;
+            transition: transform 0.3s ease;
+            box-shadow: 0 15px 25px -10px rgba(0,0,0,0.2);
+            cursor: pointer;
+        }
+
+        .breathing-text {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+            color: #2c2c2c;
+        }
+
+        .quote-box {
+            background: #ffe9f2;
+            padding: 1.3rem;
+            border-radius: 1.5rem;
+            font-style: italic;
+            margin-top: 1rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 1rem;
+            font-size: 0.8rem;
+            color: #6c5b6b;
+            background: rgba(255, 248, 250, 0.7);
+            border-top: 1px solid rgba(255, 192, 203, 0.4);
+        }
+
+        @keyframes fadeSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 650px) {
+            .content-pane {
+                padding: 1.2rem;
+            }
+            .tab-btn {
+                padding: 0.6rem 1.2rem;
+                font-size: 0.9rem;
+            }
+            .message {
+                max-width: 95%;
+            }
+            .bubble {
+                font-size: 0.85rem;
+            }
+        }
+
+        /* dashboard & streak */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        .track-card {
+            background: rgba(255,255,240,0.7);
+            border-radius: 1.8rem;
+            padding: 1.2rem;
+            backdrop-filter: blur(4px);
+            margin-bottom: 0;
+            border: 1px solid #ffe2ed;
+        }
+        .progress-bar {
+            background: #ffe0ef;
+            border-radius: 1rem;
+            height: 12px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-fill {
+            background: linear-gradient(90deg, #f9a8d4, #ec489a);
+            width: 0%;
+            height: 100%;
+            border-radius: 1rem;
+        }
+        .track-control {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-top: 8px;
+        }
+        .track-control button {
+            background: white;
+            border: 1px solid #fbcfe8;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* auth container */
+        .auth-container {
+            max-width: 480px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(16px);
+            border-radius: 2.5rem;
+            box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.3);
+            padding: 2rem 1.8rem;
+            text-align: center;
+            border: 1px solid rgba(255,255,240,0.6);
+        }
+        .auth-container h1 {
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #ec489a, #3b82f6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .quote-slider {
+            background: rgba(255,240,245,0.7);
+            border-radius: 2rem;
+            padding: 1rem;
+            margin: 1.2rem 0;
+            font-style: italic;
+            font-weight: 500;
+            color: #334155;
+            min-height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .input-group {
+            margin: 1rem 0;
+            text-align: left;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 0.9rem 1rem;
+            border-radius: 2rem;
+            border: 1px solid #ffe2ed;
+            background: white;
+            outline: none;
+            font-size: 1rem;
+        }
+        .input-group input:focus {
+            border-color: #f9a8d4;
+            box-shadow: 0 0 0 3px rgba(249,168,212,0.2);
+        }
+        .auth-btn {
+            background: linear-gradient(115deg, #fbcfe8, #f9a8d4);
+            border: none;
+            width: 100%;
+            padding: 0.9rem;
+            border-radius: 3rem;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 0.5rem;
+        }
+        .toggle-auth {
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+        }
+        .toggle-auth span {
+            color: #db2777;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: underline;
+        }
+        .error-msg {
+            color: #e11d48;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+        }
+
+        /* checklist view styles */
+        .checklist-container {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 2rem;
+            padding: 1.5rem;
+            backdrop-filter: blur(4px);
+        }
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border-bottom: 1px solid #ffe2ed;
+        }
+        .checklist-item label {
+            flex: 1;
+            cursor: pointer;
+            font-size: 1rem;
+            color: #2c2c2c;
+        }
+        .checklist-item input {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        .done-btn {
+            background: linear-gradient(115deg, #fbcfe8, #f9a8d4);
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 3rem;
+            font-weight: bold;
+            margin-top: 1.5rem;
+            cursor: pointer;
+        }
+        .back-btn {
+            background: #e2e8f0;
+            border: none;
+            padding: 0.6rem 1.5rem;
+            border-radius: 2rem;
+            margin-right: 1rem;
+            cursor: pointer;
+        }
+        .motivation-message {
+            background: #d9f99d;
+            color: #365314;
+            padding: 0.8rem;
+            border-radius: 2rem;
+            text-align: center;
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+        /* music card style */
+        .music-card {
+            background: rgba(255,255,240,0.7);
+            border-radius: 1.8rem;
+            padding: 1.5rem;
+            text-align: center;
+            backdrop-filter: blur(8px);
+        }
+        .music-iframe {
+            width: 100%;
+            border-radius: 1rem;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+
+<!-- AUTHENTICATION PAGE -->
+<div id="authPage" class="auth-container">
+    <h1><i class="fas fa-heartbeat"></i> FitMind AI</h1>
+    <div class="quote-slider" id="quoteSlider">💪 “The body achieves what the mind believes.”</div>
+    <div id="authForm">
+        <div class="input-group">
+            <input type="email" id="authEmail" placeholder="Email address" autocomplete="email">
+        </div>
+        <div class="input-group">
+            <input type="password" id="authPassword" placeholder="Password" autocomplete="current-password">
+        </div>
+        <button id="authSubmitBtn" class="auth-btn">Login</button>
+        <div class="toggle-auth">New here? <span id="toggleAuthMode">Create account</span></div>
+        <div id="authError" class="error-msg"></div>
+    </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="mainApp" class="app-container" style="display: none;">
+    <div class="glass-nav">
+        <button class="tab-btn active" data-tab="chat"><i class="fas fa-comment-dots"></i> Chat</button>
+        <button class="tab-btn" data-tab="workouts"><i class="fas fa-dumbbell"></i> Workouts</button>
+        <button class="tab-btn" data-tab="wellness"><i class="fas fa-spa"></i> Wellness</button>
+        <button class="tab-btn" data-tab="dashboard"><i class="fas fa-chart-line"></i> Dashboard</button>
+        <button class="tab-btn" data-tab="music"><i class="fas fa-music"></i> Music</button>
+        <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Exit</button>
+    </div>
+    <div class="content-pane" id="dynamicContent"></div>
+    <footer><i class="fas fa-heart" style="color:#f472b6;"></i> Smart fitness companion — real advice, real motivation</footer>
+</div>
+
+<script>
+    // ---------- GLOBAL STATE ----------
+    let currentUser = null;
+    let authMode = "login";
+    let activeTab = "chat";
+    let breathingInterval = null;
+    let breathingActive = false;
+
+    // ---------- FITNESS QUOTES ROTATOR ----------
+    const fitnessQuotes = [
+        "🏆 “Your only limit is you.” – Unknown",
+        "💪 “The pain you feel today will be the strength you feel tomorrow.”",
+        "🧘 “Take care of your body. It’s the only place you have to live.” – Jim Rohn",
+        "🌟 “Small daily improvements are the key to staggering long-term results.”",
+        "🔥 “Don’t wish for it, work for it.”",
+        "💙 “Fitness is not about being better than someone else, it’s about being better than you used to be.”"
+    ];
+    let quoteIndex = 0;
+    setInterval(() => {
+        const qDiv = document.getElementById("quoteSlider");
+        if(qDiv && document.getElementById("authPage").style.display !== "none") {
+            quoteIndex = (quoteIndex + 1) % fitnessQuotes.length;
+            qDiv.innerHTML = `<i class="fas fa-quote-left" style="margin-right:6px;color:#ec489a;"></i> ${fitnessQuotes[quoteIndex]}`;
+        }
+    }, 5000);
+
+    // ---------- USER & FITNESS DATA + STREAK SYSTEM ----------
+    function getUsers() {
+        let users = localStorage.getItem("fitmind_users");
+        return users ? JSON.parse(users) : {};
+    }
+    function saveUsers(users) {
+        localStorage.setItem("fitmind_users", JSON.stringify(users));
+    }
+
+    // Update streak based on last active date
+    function updateStreak(email, todayStr) {
+        let allData = localStorage.getItem("fitmind_fitness");
+        allData = allData ? JSON.parse(allData) : {};
+        if (!allData[email]) {
+            allData[email] = { steps: 0, water: 0, workoutMins: 0, lastDate: todayStr, streak: 1 };
+        } else {
+            let lastDate = allData[email].lastDate || "";
+            let currentStreak = allData[email].streak || 0;
+            if (lastDate !== todayStr) {
+                // check if yesterday
+                let yesterday = new Date();
+                yesterday.setDate(yesterday.getDate() - 1);
+                let yesterdayStr = yesterday.toDateString();
+                if (lastDate === yesterdayStr) {
+                    currentStreak++;
+                } else {
+                    currentStreak = 1;
+                }
+                allData[email].streak = currentStreak;
+                allData[email].lastDate = todayStr;
+            }
+        }
+        localStorage.setItem("fitmind_fitness", JSON.stringify(allData));
+        return allData[email].streak || 0;
+    }
+
+    function getFitnessData(email) {
+        let allData = localStorage.getItem("fitmind_fitness");
+        allData = allData ? JSON.parse(allData) : {};
+        let today = new Date().toDateString();
+        if (!allData[email]) {
+            allData[email] = { steps: 0, water: 0, workoutMins: 0, lastDate: today, streak: 1 };
+        } else {
+            if (allData[email].lastDate !== today) {
+                // reset daily values but keep streak updated later
+                allData[email].steps = 0;
+                allData[email].water = 0;
+                allData[email].workoutMins = 0;
+                allData[email].lastDate = today;
+                // streak will be updated on any activity
+            }
+        }
+        localStorage.setItem("fitmind_fitness", JSON.stringify(allData));
+        return allData[email];
+    }
+
+    function updateFitnessData(email, updates) {
+        let allData = localStorage.getItem("fitmind_fitness");
+        allData = allData ? JSON.parse(allData) : {};
+        let today = new Date().toDateString();
+        if (!allData[email]) {
+            allData[email] = { steps: 0, water: 0, workoutMins: 0, lastDate: today, streak: 1 };
+        }
+        Object.assign(allData[email], updates);
+        allData[email].lastDate = today;
+        // update streak based on any activity (steps, water, mins)
+        let oldStreak = allData[email].streak || 0;
+        let lastDate = allData[email].lastDate || "";
+        if (lastDate !== today) {
+            let yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            let yesterdayStr = yesterday.toDateString();
+            if (lastDate === yesterdayStr) {
+                allData[email].streak = oldStreak + 1;
+            } else {
+                allData[email].streak = 1;
+            }
+            allData[email].lastDate = today;
+        } else {
+            // already today, ensure streak is at least 1
+            if (!allData[email].streak) allData[email].streak = 1;
+        }
+        localStorage.setItem("fitmind_fitness", JSON.stringify(allData));
+        return allData[email];
+    }
+
+    // ---------- AUTH LOGIC ----------
+    function showAuthError(msg) {
+        const errDiv = document.getElementById("authError");
+        if (errDiv) errDiv.innerText = msg;
+        setTimeout(() => { if(errDiv) errDiv.innerText = ""; }, 2500);
+    }
+    function handleAuth() {
+        const email = document.getElementById("authEmail").value.trim();
+        const password = document.getElementById("authPassword").value.trim();
+        if (!email || !password) { showAuthError("Please fill both fields."); return; }
+        const users = getUsers();
+        if (authMode === "login") {
+            if (users[email] && users[email] === password) {
+                currentUser = email;
+                localStorage.setItem("fitmind_currentUser", email);
+                showMainApp();
+            } else { showAuthError("Invalid email or password."); }
+        } else {
+            if (users[email]) { showAuthError("Email already exists. Try login."); return; }
+            users[email] = password;
+            saveUsers(users);
+            let today = new Date().toDateString();
+            updateFitnessData(email, { steps: 0, water: 0, workoutMins: 0, lastDate: today, streak: 1 });
+            currentUser = email;
+            localStorage.setItem("fitmind_currentUser", email);
+            showMainApp();
+        }
+    }
+    function toggleAuthMode() {
+        authMode = authMode === "login" ? "signup" : "login";
+        const btn = document.getElementById("authSubmitBtn");
+        const toggleSpan = document.getElementById("toggleAuthMode");
+        btn.innerText = authMode === "login" ? "Login" : "Sign Up";
+        toggleSpan.innerText = authMode === "login" ? "Create account" : "Back to Login";
+        document.getElementById("authError").innerText = "";
+    }
+    function logout() {
+        currentUser = null;
+        localStorage.removeItem("fitmind_currentUser");
+        document.getElementById("mainApp").style.display = "none";
+        document.getElementById("authPage").style.display = "block";
+        if (breathingInterval) clearInterval(breathingInterval);
+        breathingActive = false;
+        chatMessages = [
+            { text: "👋 Hey there! I'm **FitMind** — your smart fitness buddy! 💙💗 Ask me anything: workouts, nutrition, mindset, or just a motivational boost. Try: *\"quick home workout\"*, *\"protein sources\"*, *\"stress relief\"*", sender: "bot" }
+        ];
+    }
+    function showMainApp() {
+        document.getElementById("authPage").style.display = "none";
+        document.getElementById("mainApp").style.display = "block";
+        switchTab("chat");
+        bindTabEvents();
+    }
+
+    // ---------- ORIGINAL CHATBOT LOGIC ----------
+    let chatMessages = [
+        { text: "👋 Hey there! I'm **FitMind** — your smart fitness buddy! 💙💗 Ask me anything: workouts, nutrition, mindset, or just a motivational boost. Try: *\"quick home workout\"*, *\"protein sources\"*, *\"stress relief\"*", sender: "bot" }
+    ];
+
+    function getSmartReply(userMsg) {
+        const msg = userMsg.toLowerCase().trim();
+        if (msg.match(/^(hi|hello|hey|hola|sup)/i)) {
+            return "Hey hey! 💪 Ready to crush your fitness goals? Let me know if you need a workout plan, meal ideas, or just some energy!";
+        }
+        if (msg.includes("home workout") || msg.includes("no equipment") || (msg.includes("workout") && msg.includes("home"))) {
+            return "🏠 *Home workout* (no gear): 30 sec jumping jacks → 12 bodyweight squats → 10 push-ups (knee ok) → 40 sec high knees → 30 sec rest. Repeat 3 rounds! Need more variations?";
+        }
+        if (msg.includes("push up") || msg.includes("pushup")) {
+            return "💪 Push-ups build chest & triceps. Beginner: incline push-ups on a table. Advanced: diamond or decline. Aim 3 sets of 8-12 reps! Form first!";
+        }
+        if (msg.includes("squat") || msg.includes("leg day")) {
+            return "🦵 Squats = king of leg exercises! Keep chest up, weight in heels. Try goblet squats or bodyweight 3x15. Add lunges for fire glutes 🔥";
+        }
+        if (msg.includes("cardio") || msg.includes("fat burn")) {
+            return "🏃‍♀️ Cardio boosts heart health & burns calories. Try: 20 min brisk walk/jog, jump rope, or cycling. HIIT: 30s sprint/30s rest x 8 rounds!";
+        }
+        if (msg.includes("protein") || msg.includes("meal") && msg.includes("protein")) {
+            return "🥚 Top protein sources: chicken breast, tofu, lentils, greek yogurt, eggs, whey. Aim for 20-30g per meal to build muscle & stay full!";
+        }
+        if (msg.includes("weight loss") || msg.includes("lose weight")) {
+            return "⚖️ Sustainable fat loss: calorie deficit + protein + strength training + NEAT (daily steps). Try 300-500 cal deficit & 8k steps daily. Want a sample meal plan?";
+        }
+        if (msg.includes("bmi") || (msg.includes("calculate") && msg.includes("weight") && msg.includes("height"))) {
+            let numbers = msg.match(/\d+(\.\d+)?/g);
+            if (numbers && numbers.length >= 2) {
+                let weight = parseFloat(numbers[0]);
+                let height = parseFloat(numbers[1]);
+                if (!isNaN(weight) && !isNaN(height) && height > 0 && weight > 10) {
+                    let bmi = (weight / (height * height)).toFixed(1);
+                    let category = bmi < 18.5 ? "Underweight" : (bmi < 25 ? "Normal weight" : (bmi < 30 ? "Overweight" : "Obese"));
+                    return `📊 Your BMI = ${bmi} (${category}). Keep in mind BMI is a general reference — muscle mass matters! Want tips for healthy range?`;
+                } else return "Please send weight (kg) & height (m) like 'BMI 70 1.75'";
+            } else return "To calculate BMI, send: weight in kg and height in meters. Example: 'bmi 68 1.65'";
+        }
+        if (msg.includes("hydration") || msg.includes("water")) {
+            return "💧 Stay hydrated! General rule: 2-3 liters/day, more if you sweat. Tip: carry a bottle & set hourly reminders. Thirst = already dehydrated!";
+        }
+        if (msg.includes("stress") || msg.includes("anxiety") || msg.includes("relax")) {
+            return "🧘 Stress-busting: deep belly breathing (try 4-7-8 method), 10 min walk in nature, or stretching. Check the Wellness tab for breathing exercise!";
+        }
+        if (msg.includes("yoga")) {
+            return "🧘‍♀️ Yoga improves flexibility & calm. Beginner poses: child's pose, downward dog, cat-cow. 10 min daily reduces tension & posture issues!";
+        }
+        if (msg.includes("sleep")) {
+            return "😴 Sleep = recovery superpower. Aim 7-9h. Tips: no screens 30min before, dark cool room, magnesium rich foods (bananas, almonds).";
+        }
+        if (msg.includes("motivation") || msg.includes("quote")) {
+            return "✨ *Fitness quote*: 'The body achieves what the mind believes.' You’ve got this! Every small step counts. What’s your workout today?";
+        }
+        if (msg.includes("abs") || msg.includes("core")) {
+            return "🔥 Core crushers: planks (30-60s), leg raises, bicycle crunches. Strong core = better posture & less back pain. Train 3x/week!";
+        }
+        if (msg.includes("beginner") && msg.includes("workout")) {
+            return "🌟 Beginner full body: bodyweight squats 3x10, wall push-ups 3x8, seated rows (band), glute bridges 3x12, 20min walking. 3x/week!";
+        }
+        return "🤔 I'm here to help! Ask me about: 'home workout', 'healthy recipes', 'hydration tips', 'bmi calculator', 'push up form', 'stress relief', or 'cardio'. Try something specific! 🌱";
+    }
+
+    function addBotResponseToChat(userInput) {
+        if (!userInput.trim()) return;
+        chatMessages.push({ text: userInput, sender: "user" });
+        const botAnswer = getSmartReply(userInput);
+        chatMessages.push({ text: botAnswer, sender: "bot" });
+        if (activeTab === "chat") renderChatTab();
+    }
+    function sendUserMessage(text) {
+        if (!text.trim()) return;
+        addBotResponseToChat(text);
+        const inputField = document.getElementById("chatInput");
+        if (inputField) inputField.value = "";
+        scrollChatToBottom();
+    }
+    function scrollChatToBottom() {
+        setTimeout(() => {
+            const container = document.querySelector(".messages-area");
+            if (container) container.scrollTop = container.scrollHeight;
+        }, 50);
+    }
+    function renderChatTab() {
+        const container = document.getElementById("dynamicContent");
+        if (!container) return;
+        let messagesHtml = `<div class="chat-wrapper"><div class="messages-area" id="chatMessagesContainer">`;
+        chatMessages.forEach(msg => {
+            const formattedText = msg.text.replace(/\*(.*?)\*/g, '<strong>$1</strong>');
+            messagesHtml += `<div class="message ${msg.sender}"><div class="bubble">${formattedText}</div></div>`;
+        });
+        messagesHtml += `</div><div class="suggestions" id="suggestionChips">
+            <div class="suggestion-chip" data-suggest="Quick home workout">🏠 Home workout</div>
+            <div class="suggestion-chip" data-suggest="High protein meal ideas">🥗 Protein meals</div>
+            <div class="suggestion-chip" data-suggest="Motivation quote">✨ Motivation</div>
+            <div class="suggestion-chip" data-suggest="How to reduce stress?">🧘 Stress relief</div>
+            <div class="suggestion-chip" data-suggest="Push up technique">💪 Push-up tips</div>
+        </div><div class="chat-input-area"><input type="text" id="chatInput" placeholder="Ask anything fitness... e.g., 'bmi 70 1.75'" autocomplete="off"><button id="sendMsgBtn"><i class="fas fa-paper-plane"></i></button></div></div>`;
+        container.innerHTML = messagesHtml;
+        const sendBtn = document.getElementById("sendMsgBtn");
+        const chatInput = document.getElementById("chatInput");
+        if (sendBtn) sendBtn.addEventListener("click", () => sendUserMessage(chatInput.value));
+        if (chatInput) chatInput.addEventListener("keypress", (e) => { if (e.key === "Enter") sendUserMessage(chatInput.value); });
+        document.querySelectorAll(".suggestion-chip").forEach(chip => {
+            chip.addEventListener("click", () => sendUserMessage(chip.getAttribute("data-suggest")));
+        });
+        scrollChatToBottom();
+    }
+
+    // ---------- WORKOUTS WITH CHECKLIST ----------
+    const workoutDetailsMap = {
+        "🏋️‍♀️ Full Body Burn": [
+            "10 bodyweight squats (keep back straight, go low)",
+            "8 push-ups (chest to floor, core tight)",
+            "12 alternating lunges (step forward, knee at 90°)",
+            "30-second plank (hold straight line from head to heels)",
+            "15 jumping jacks (full range of motion)"
+        ],
+        "🏃‍♂️ Cardio Sprint": [
+            "30 sec sprint at max effort (run in place or outside)",
+            "30 sec active recovery (slow walk/jog)",
+            "Repeat sprint interval 5 times",
+            "Cool down with 2 min light jog",
+            "Stretch quads and calves for 1 min"
+        ],
+        "🧘 Morning Flow": [
+            "Cat-cow stretch: 5 rounds (arch and round spine)",
+            "Downward dog: hold 30 sec, pedal feet",
+            "Warrior II: hold 30 sec each side",
+            "Child's pose: 1 min deep breathing",
+            "Standing forward fold: 30 sec"
+        ],
+        "💥 HIIT Express": [
+            "40 sec burpees (jump, chest to ground, jump up)",
+            "20 sec rest",
+            "40 sec mountain climbers (drive knees fast)",
+            "20 sec rest",
+            "40 sec high knees (bring knees to chest)"
+        ],
+        "🍑 Glute & Legs": [
+            "Bulgarian split squats: 10 each leg (back foot on chair)",
+            "Hip thrusts: 15 reps (squeeze glutes at top)",
+            "Step-ups: 12 each leg (use a sturdy box)",
+            "Calf raises: 20 reps (stand on edge of step)",
+            "Clamshells: 15 each side (lie on side, open knees)"
+        ],
+        "💪 Upper Body": [
+            "Diamond push-ups: 8 reps (hands together under chest)",
+            "Triceps dips: 12 reps (use chair, lower body)",
+            "Pike push-ups: 8 reps (hips high, head to floor)",
+            "Arm circles: 30 sec forward + 30 sec backward",
+            "Plank shoulder taps: 20 taps (alternating)"
+        ]
+    };
+
+    function showWorkoutDetails(workoutName) {
+        const exercises = workoutDetailsMap[workoutName];
+        if (!exercises) return;
+        const container = document.getElementById("dynamicContent");
+        let checklistHtml = `<div class="checklist-container">
+            <button class="back-btn" id="backToWorkoutsBtn"><i class="fas fa-arrow-left"></i> Back to Workouts</button>
+            <h2 style="margin: 1rem 0;">✅ ${workoutName} – Exercise Checklist</h2>
+            <div id="checklistItems">`;
+        exercises.forEach((ex, idx) => {
+            checklistHtml += `
+                <div class="checklist-item">
+                    <input type="checkbox" id="ex_${idx}" data-index="${idx}">
+                    <label for="ex_${idx}">${ex}</label>
+                </div>`;
+        });
+        checklistHtml += `</div>
+            <div style="text-align: center;">
+                <button id="doneWorkoutBtn" class="done-btn">✔️ Done – I completed all!</button>
+            </div>
+            <div id="motivationMsg" style="margin-top: 1rem; text-align: center;"></div>
+        </div>`;
+        container.innerHTML = checklistHtml;
+        document.getElementById("backToWorkoutsBtn").addEventListener("click", () => renderWorkoutsTab());
+        document.getElementById("doneWorkoutBtn").addEventListener("click", () => {
+            const allCheckboxes = document.querySelectorAll("#checklistItems input[type='checkbox']");
+            let allChecked = true;
+            allCheckboxes.forEach(cb => { if (!cb.checked) allChecked = false; });
+            if (allChecked) {
+                const msgDiv = document.getElementById("motivationMsg");
+                msgDiv.innerHTML = `<div class="motivation-message">🎉 Amazing work! You crushed ${workoutName}! Keep that momentum going! 💪🔥</div>`;
+                setTimeout(() => { renderWorkoutsTab(); }, 2000);
+            } else {
+                const msgDiv = document.getElementById("motivationMsg");
+                msgDiv.innerHTML = `<div style="background:#fee2e2; color:#b91c1c; padding:0.5rem; border-radius:2rem;">⚠️ You haven't checked all exercises. Complete every step to finish!</div>`;
+                setTimeout(() => { if (msgDiv) msgDiv.innerHTML = ""; }, 2500);
+            }
+        });
+    }
+
+    function renderWorkoutsTab() {
+        const container = document.getElementById("dynamicContent");
+        const workoutsList = [
+            { name: "🏋️‍♀️ Full Body Burn", desc: "Squats, push-ups, lunges, planks. 3 sets each, 12 reps. Rest 60s.", icon: "fas fa-fire" },
+            { name: "🏃‍♂️ Cardio Sprint", desc: "30 sec sprint / 30 sec walk x 10 rounds. Great for endurance!", icon: "fas fa-running" },
+            { name: "🧘 Morning Flow", desc: "Cat-cow, downward dog, warrior II, child’s pose. 10 min deep stretch.", icon: "fas fa-praying-hands" },
+            { name: "💥 HIIT Express", desc: "Burpees, mountain climbers, high knees (40s on, 20s off) 4 rounds.", icon: "fas fa-bolt" },
+            { name: "🍑 Glute & Legs", desc: "Bulgarian split squats, hip thrusts, step-ups. 3x12 each side.", icon: "fas fa-walking" },
+            { name: "💪 Upper Body", desc: "Diamond push-ups, triceps dips, pike push-ups. 8-12 reps.", icon: "fas fa-hand-fist" }
+        ];
+        let html = `<div style="margin-bottom:1rem;"><h2 style="display:flex; gap:12px;"><i class="fas fa-dumbbell" style="color:#ec489a;"></i> 💪 Smart Workout Library</h2><p>Pick a routine or get a random challenge 👇</p></div>
+        <div class="workout-grid" id="workoutGrid">`;
+        workoutsList.forEach(w => {
+            html += `<div class="workout-card" data-workout-name="${w.name}">
+                        <div class="workout-icon"><i class="${w.icon}"></i></div>
+                        <h3>${w.name}</h3>
+                        <p style="margin: 10px 0; color:#334155;">${w.desc}</p>
+                        <small style="color:#b91c5c;"><i class="fas fa-clock"></i> 15-25 min</small>
+                    </div>`;
+        });
+        html += `</div><div style="text-align:center; margin-top:1rem;">
+                    <button id="randomWorkoutBtn" class="random-btn"><i class="fas fa-shuffle"></i> Random workout generator</button>
+                    <div id="randomWorkoutDisplay" style="margin-top: 1rem; font-weight:500; background:#fff0f5; border-radius:2rem; padding:0.8rem; display:inline-block;"></div>
+                </div>`;
+        container.innerHTML = html;
+        document.querySelectorAll(".workout-card").forEach(card => {
+            card.addEventListener("click", () => {
+                const workoutName = card.getAttribute("data-workout-name");
+                if (workoutName) showWorkoutDetails(workoutName);
+            });
+        });
+        const randomWorkoutIdeas = ["🏆 10 min AMRAP: 10 squats + 10 lunges + 5 burpees","🔥 Tabata: 20s jumping jacks / 10s rest x 8 rounds","🧘‍♂️ Stretch & breathe: 5 deep breaths + 2 min downward dog","💪 EMOM: 12 push-ups every minute for 8 minutes","⭐ 100 bodyweight squats challenge (break into sets)","⚡ 3 rounds: 400m run + 20 reverse lunges"];
+        document.getElementById("randomWorkoutBtn")?.addEventListener("click", () => {
+            const randomEx = randomWorkoutIdeas[Math.floor(Math.random() * randomWorkoutIdeas.length)];
+            const displayDiv = document.getElementById("randomWorkoutDisplay");
+            displayDiv.innerHTML = `<i class="fas fa-star"></i> ${randomEx} &nbsp;🔥 GO!`;
+            displayDiv.style.background = "#fce7f3";
+            setTimeout(() => { if(displayDiv) displayDiv.style.background = "#fff0f5"; }, 1200);
+        });
+    }
+
+    // ---------- WELLNESS & BREATHING ----------
+    function stopBreathingTimer() { if(breathingInterval) { clearInterval(breathingInterval); breathingInterval = null; } breathingActive = false; }
+    function startBreathingExercise() {
+        if(breathingInterval) stopBreathingTimer();
+        breathingActive = true;
+        const circleElem = document.getElementById("breathingCircle");
+        const breatheInstruction = document.getElementById("breatheInstruction");
+        if (!circleElem || !breatheInstruction) return;
+        let currentPhase = "inhale";
+        let countdown = 4;
+        const updateBreathing = () => {
+            if (!breathingActive) return;
+            if (currentPhase === "inhale") {
+                breatheInstruction.innerText = `🌬️ Inhale... ${countdown}s`;
+                circleElem.style.transform = "scale(1.1)";
+                countdown--;
+                if (countdown < 0) { currentPhase = "hold"; countdown = 4; }
+            } else if (currentPhase === "hold") {
+                breatheInstruction.innerText = `🧘 Hold... ${countdown}s`;
+                countdown--;
+                if (countdown < 0) { currentPhase = "exhale"; countdown = 6; }
+            } else {
+                breatheInstruction.innerText = `🌊 Exhale... ${countdown}s`;
+                circleElem.style.transform = "scale(0.9)";
+                countdown--;
+                if (countdown < 0) { currentPhase = "inhale"; countdown = 4; }
+            }
+        };
+        updateBreathing();
+        breathingInterval = setInterval(updateBreathing, 1000);
+    }
+    function renderWellnessTab() {
+        const container = document.getElementById("dynamicContent");
+        container.innerHTML = `<div class="wellness-card"><h2><i class="fas fa-brain" style="color:#db2777;"></i> Mindful Breathing 🧘‍♀️</h2><p>4-4-6 breathing: Inhale 4s, Hold 4s, Exhale 6s — reduces stress & boosts focus.</p><div id="breathingCircle" class="breathing-circle"><i class="fas fa-leaf" style="font-size:3rem; color:#be185d;"></i></div><div id="breatheInstruction" class="breathing-text">Tap to start breathing</div><button id="startBreathingBtn" class="random-btn" style="margin-top:1rem; background:#fbcfe8;"><i class="fas fa-play"></i> Start calm session</button><button id="stopBreathingBtn" class="random-btn" style="background:#ffe0f0; margin-left:0.5rem;"><i class="fas fa-stop"></i> Stop</button></div><div class="wellness-card"><h3><i class="fas fa-hand-sparkles"></i> Daily Wellness Ritual</h3><div class="quote-box"><i class="fas fa-quote-left" style="margin-right:8px; color:#ec489a;"></i> “Take care of your body. It's the only place you have to live.” — Jim Rohn</div><div style="margin-top:1rem; display:flex; gap:0.8rem; flex-wrap:wrap;"><div style="background:#fce7f3; border-radius:1.5rem; padding:0.8rem;"><i class="fas fa-tint"></i> Hydrate: 2-3L water</div><div style="background:#e0f2fe; border-radius:1.5rem; padding:0.8rem;"><i class="fas fa-walking"></i> 7k+ steps daily</div><div style="background:#fce7f3; border-radius:1.5rem; padding:0.8rem;"><i class="fas fa-moon"></i> 7-9h sleep</div></div><p style="margin-top:1rem;"><i class="fas fa-smile-wink"></i> Small habits, huge transformation. You're doing amazing!</p></div>`;
+        document.getElementById("startBreathingBtn")?.addEventListener("click", startBreathingExercise);
+        document.getElementById("stopBreathingBtn")?.addEventListener("click", () => { stopBreathingTimer(); const instr = document.getElementById("breatheInstruction"); if(instr) instr.innerText = "Breathing stopped. Tap Start to relax again."; const circle = document.getElementById("breathingCircle"); if(circle) circle.style.transform = "scale(1)"; breathingActive = false; });
+    }
+
+    // ---------- DASHBOARD (with streak) ----------
+    function renderDashboard() {
+        if(!currentUser) return;
+        const data = getFitnessData(currentUser);
+        const stepsGoal = 10000, waterGoal = 8, minsGoal = 30;
+        const stepsPercent = Math.min(100, (data.steps / stepsGoal) * 100);
+        const waterPercent = Math.min(100, (data.water / waterGoal) * 100);
+        const minsPercent = Math.min(100, (data.workoutMins / minsGoal) * 100);
+        const streak = data.streak || 1;
+        const container = document.getElementById("dynamicContent");
+        container.innerHTML = `<h2><i class="fas fa-chart-line"></i> Your Daily Fitness Tracker</h2>
+        <div class="dashboard-grid">
+            <div class="track-card"><i class="fas fa-fire" style="color:#f97316;"></i> <strong>Daily Streak</strong><div style="font-size:2rem; font-weight:bold;">${streak} days 🔥</div><p>Keep logging activity to grow your streak!</p></div>
+            <div class="track-card"><i class="fas fa-shoe-prints"></i> <strong>Steps</strong> <span>${data.steps} / ${stepsGoal}</span><div class="progress-bar"><div class="progress-fill" style="width:${stepsPercent}%;"></div></div><div class="track-control"><button id="stepsMinus">-100</button><span style="width:50px;text-align:center">${data.steps}</span><button id="stepsPlus">+100</button><button id="stepsAdd500" style="border-radius:1rem; width:auto; padding:0 12px;">+500</button></div></div>
+            <div class="track-card"><i class="fas fa-tint"></i> <strong>Water (glasses)</strong> <span>${data.water} / ${waterGoal}</span><div class="progress-bar"><div class="progress-fill" style="width:${waterPercent}%;"></div></div><div class="track-control"><button id="waterMinus">-1</button><span>${data.water}</span><button id="waterPlus">+1</button></div></div>
+            <div class="track-card"><i class="fas fa-stopwatch"></i> <strong>Workout (mins)</strong> <span>${data.workoutMins} / ${minsGoal}</span><div class="progress-bar"><div class="progress-fill" style="width:${minsPercent}%;"></div></div><div class="track-control"><button id="minsMinus">-5</button><span>${data.workoutMins}</span><button id="minsPlus">+5</button><button id="minsAdd15" style="border-radius:1rem;">+15 min 🏃</button></div></div>
+            <div class="track-card"><i class="fas fa-chart-simple"></i> <strong>Today's motivation</strong><p>${stepsPercent>=100?"🎉 Steps goal crushed! Amazing!":stepsPercent>70?"🌟 Almost there! Keep moving!":"💪 Every step counts, keep going!"}</p><button id="resetDayBtn" class="random-btn" style="margin-top:0.5rem;">Reset Today</button></div>
+        </div>`;
+        // attach event listeners that also update streak
+        const updateAndRender = (updates) => {
+            updateFitnessData(currentUser, updates);
+            renderDashboard();
+        };
+        document.getElementById("stepsMinus")?.addEventListener("click",()=>{ let d=getFitnessData(currentUser); updateAndRender({steps:Math.max(0,d.steps-100)}); });
+        document.getElementById("stepsPlus")?.addEventListener("click",()=>{ let d=getFitnessData(currentUser); updateAndRender({steps:d.steps+100}); });
+        document.getElementById("stepsAdd500")?.addEventListener("click",()=>{ let d=getFitnessData(currentUser); updateAndRender({steps:d.steps+500}); });
+        document.getElementById("waterMinus")?.addEventListener("click",()=>{ let d=getFitnessData(currentUser); updateAndRender({water:Math.max(0,d.water-1)}); });
+        document.getElementById("waterPlus")?.addEventListener("click",()=>{ let d=getFitnessData(currentUser); updateAndRender({water:d.water+1}); });
+        document.getElementById("minsMinus")?.addEventListener("click",()=>{ let d=getFitnessData(currentUser); updateAndRender({workoutMins:Math.max(0,d.workoutMins-5)}); });
+        document.getElementById("minsPlus")?.addEventListener("click",()=>{ let d=getFitnessData(currentUser); updateAndRender({workoutMins:d.workoutMins+5}); });
+        document.getElementById("minsAdd15")?.addEventListener("click",()=>{ let d=getFitnessData(currentUser); updateAndRender({workoutMins:d.workoutMins+15}); });
+        document.getElementById("resetDayBtn")?.addEventListener("click",()=>{ updateAndRender({steps:0,water:0,workoutMins:0}); });
+    }
+
+    // ---------- MUSIC TAB (lofi relaxation + workout music) ----------
+    function renderMusicTab() {
+        const container = document.getElementById("dynamicContent");
+        container.innerHTML = `
+            <h2><i class="fas fa-headphones"></i> Music for Your Journey</h2>
+            <div class="dashboard-grid">
+                <div class="music-card">
+                    <i class="fas fa-cloud-moon" style="font-size: 2.5rem; color: #7c3aed;"></i>
+                    <h3>Lofi Relaxation</h3>
+                    <p>Calm beats for meditation, study, or unwinding</p>
+                    <iframe class="music-iframe" width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/109219999&color=%23ff69b4&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false"></iframe>
+                    <div style="margin-top: 0.8rem; font-size: 0.8rem;">🎧 Lo-fi hip hop radio - beats to relax/study</div>
+                </div>
+                <div class="music-card">
+                    <i class="fas fa-bolt" style="font-size: 2.5rem; color: #f97316;"></i>
+                    <h3>Workout Energy</h3>
+                    <p>High-intensity tracks to push your limits</p>
+                    <iframe class="music-iframe" width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/110109679&color=%23ff69b4&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false"></iframe>
+                    <div style="margin-top: 0.8rem; font-size: 0.8rem;">🎧 Workout motivation mix - energize your session</div>
+                </div>
+                <div class="music-card">
+                    <i class="fas fa-music"></i>
+                    <h3>YouTube Playlists</h3>
+                    <p>Click below for extended mixes</p>
+                    <a href="https://www.youtube.com/watch?v=5qap5aO4i9A" target="_blank" class="random-btn" style="display: inline-block; margin: 0.5rem;">🎧 Lofi Hip Hop Radio</a>
+                    <a href="https://www.youtube.com/watch?v=btPJPFnesV4" target="_blank" class="random-btn" style="display: inline-block;">🏋️ Workout Beast Mode</a>
+                </div>
+            </div>
+        `;
+    }
+
+    // ---------- TAB SWITCHING ----------
+    function switchTab(tabId) {
+        activeTab = tabId;
+        document.querySelectorAll(".tab-btn").forEach(btn => {
+            if(btn.getAttribute("data-tab") === tabId) btn.classList.add("active");
+            else btn.classList.remove("active");
+        });
+        if(tabId !== "wellness") stopBreathingTimer();
+        if(tabId === "chat") renderChatTab();
+        else if(tabId === "workouts") renderWorkoutsTab();
+        else if(tabId === "wellness") renderWellnessTab();
+        else if(tabId === "dashboard") renderDashboard();
+        else if(tabId === "music") renderMusicTab();
+    }
+
+    function bindTabEvents() {
+        document.querySelectorAll(".tab-btn").forEach(btn => {
+            if(btn.id === "logoutBtn") return;
+            btn.removeEventListener("click", handleTabClick);
+            btn.addEventListener("click", handleTabClick);
+        });
+        function handleTabClick(e) { const tab = this.getAttribute("data-tab"); if(tab) switchTab(tab); }
+        document.getElementById("logoutBtn")?.addEventListener("click", logout);
+    }
+
+    // ---------- INITIAL LOAD ----------
+    function init() {
+        const savedUser = localStorage.getItem("fitmind_currentUser");
+        if(savedUser && getUsers()[savedUser]) {
+            currentUser = savedUser;
+            showMainApp();
+        } else {
+            document.getElementById("authPage").style.display = "block";
+            document.getElementById("mainApp").style.display = "none";
+        }
+        document.getElementById("authSubmitBtn")?.addEventListener("click", handleAuth);
+        document.getElementById("toggleAuthMode")?.addEventListener("click", toggleAuthMode);
+        const qDiv = document.getElementById("quoteSlider");
+        if(qDiv) qDiv.innerHTML = `<i class="fas fa-quote-left" style="margin-right:6px;color:#ec489a;"></i> ${fitnessQuotes[0]}`;
+    }
+    init();
+</script>
+</body>
+</html>
